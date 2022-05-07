@@ -1,0 +1,36 @@
+""" Queries """
+
+type Query {
+  getCurrentUser: User
+}
+
+""" Mutations """
+
+type Mutation {
+  changePassword(username: String!, newPassword: String!, key: String!): GraphQLResponse
+  loginUser(usernameOrEmail: String!, password: String!, deviceId: String!): GraphQLResponse
+  logoutAll: GraphQLResponse
+  logoutUser: GraphQLResponse
+  registerUser(email: String!, username: String!, password: String!): GraphQLResponse
+  sendForgotPasswordEmail(email: String!): GraphQLResponse
+}
+
+""" Responses """
+
+type SwishError {
+  type: String!
+  message: String!
+}
+
+type GraphQLResponse {
+  success: Boolean!
+  errors: [SwishError!]
+  data: String
+}
+
+""" Entities """
+
+type User {
+  id: String!
+  username: String!
+}
