@@ -6,11 +6,13 @@ This project serves as a boilerplate template for a GraphQL backend server with 
 
 ## Getting Started
 
+### Installation
+
+Run `yarn install` to install the dependency packages into the `node_modules` folder.
+
 ### Environment Variables
 
-A local `.env` file is needed to run or test the server. The file should contain the following variables:
-
-Specific environment variables are needed to successfully run, deploy or test the SWISH! GM GraphQL server. These should be saved in a `.env` file in the service's root directory.
+A local `.env` file is needed to run or test the server. The file must be created and needs to  contain the following variables:
 
 | Variable               | Description                                         |
 |------------------------|-----------------------------------------------------|
@@ -36,7 +38,7 @@ REFRESH_TOKEN_SECRET="7w5|yH}+t/^FgG_=h^3bi@w?w1,c;E"
 
 - A PostgreSQL server must be running on `localhost:5432`
 - In separate terminal tabs:
-  1. Run `redis-server` to start the cache server
+  1. Run `redis-server` to start the redis server
   2. Run `yarn start` to start the GraphQL server on `http://localhost:4000/graphql`
 
 ## Development Notes
@@ -46,6 +48,37 @@ REFRESH_TOKEN_SECRET="7w5|yH}+t/^FgG_=h^3bi@w?w1,c;E"
 ### Testing 
 
 In separate terminal tabs
-  1. Run `yarn test-server` to start the test database
-  2. Run `yarn test` to run the tests
+  1. Run `redis-server` to start the redis server
+  2. Run `yarn test-server` to start the test database
+  3. Run `yarn test` to run the tests
 
+### Jest Tests
+```
+Register User 
+  ✓ Successful registration
+  ✓ Storing registration data correctly
+  ✓ There's only 1 user with registered email
+  ✓ There's only 1 user with registered username
+  ✓ Password hash correctly verifies the password
+  ✓ Cannot create another user with same email
+  ✓ Cannot create another user with same username
+Confirm User
+  ✓ Confirm URL link works
+  ✓ Visiting confirm URL sets user.confirm to true
+  ✓ Visiting confirm URL removes confirm code from database
+  ✓ Bad confirm codes do not confirm user
+Login User
+  ✓ Invalid username login will fail
+  ✓ Invalid password login will fail
+  ✓ Unconfirmed user login will fail
+  ✓ Successful user login
+  ✓ Can get current user if logged in
+  ✓ Successful user log out
+  ✓ Cannot get current user if logged out
+  ✓ Across multiple clients, can login and get the current user
+  ✓ "Logout all" removes all device IDs
+Forgot Password
+  ✓ Successful send of forgotten password email
+  ✓ Valid forgot password key changes user's password
+  ✓ Invalid forgot password key does not change user's password
+```
