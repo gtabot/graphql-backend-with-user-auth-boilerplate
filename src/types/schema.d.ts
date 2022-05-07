@@ -75,15 +75,15 @@ declare namespace GQL {
   interface IGraphQLResponse {
     __typename: 'GraphQLResponse';
     success: boolean;
-    errors: Array<ISwishError> | null;
+    errors: Array<IResponseError> | null;
     data: string | null;
   }
 
   /**
    *  Responses
    */
-  interface ISwishError {
-    __typename: 'SwishError';
+  interface IResponseError {
+    __typename: 'ResponseError';
     type: string;
     message: string;
   }

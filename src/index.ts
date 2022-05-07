@@ -3,7 +3,6 @@ import { loadSchemaSync } from "@graphql-tools/load";
 import { addResolversToSchema } from "@graphql-tools/schema";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
-// import * as connect_redis from "connect-redis";
 import * as cors from "cors";
 import "dotenv/config";
 import * as express from "express";
@@ -19,8 +18,6 @@ import { confirmPrefix, redis } from "./utils/redis";
 import { refreshTokens, setTokens } from "./utils/resolvers";
 
 const isProduction = process.env.NODE_ENV === "production";
-
-// const RedisStore = connect_redis(session);
 
 AppDataSource.initialize();
 
@@ -95,7 +92,7 @@ app.get("/confirm/:code", async (request, response) => {
     await User.update({ id: userId }, { confirmed: true });
     await redis.del(redisKey);
     response.status(200);
-    response.redirect(`${process.env.PROD_URL}/home`);
+    response.send();
   } else {
     response.status(400);
     response.send();

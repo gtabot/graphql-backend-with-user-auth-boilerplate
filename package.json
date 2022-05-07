@@ -1,7 +1,7 @@
 {
-  "name": "swish-gm-graphql",
+  "name": "graphql-backend-with-user-auth-boilerplate",
   "version": "0.0.1",
-  "description": "GraphQL backend server for swish-gm",
+  "description": "Boilerplate template for a GraphQL backend server with user authentication",
   "type": "commonjs",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

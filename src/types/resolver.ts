@@ -26,7 +26,7 @@ export function GraphQLResponse(
     success,
     errors: errors.map((error) => {
       return {
-        __typename: "SwishError",
+        __typename: "ResponseError",
         ...error,
       };
     }),

@@ -17,14 +17,14 @@ type Mutation {
 
 """ Responses """
 
-type SwishError {
+type ResponseError {
   type: String!
   message: String!
 }
 
 type GraphQLResponse {
   success: Boolean!
-  errors: [SwishError!]
+  errors: [ResponseError!]
   data: String
 }
 

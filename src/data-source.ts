@@ -12,7 +12,7 @@ const prodOptions: DataSourceOptions = {
   port: 5432,
   username: "postgres",
   password: "",
-  database: "swish-gm-graphql",
+  database: "database",
   synchronize: true,
   logging: false,
   entities: [User],
@@ -23,7 +23,7 @@ const prodOptions: DataSourceOptions = {
 if (process.env.NODE_ENV === "test") {
   appDataSource = new DataSource({
     ...prodOptions,
-    database: "swish-gm-graphql-test",
+    database: "test",
     dropSchema: true,
   });
 } else {
