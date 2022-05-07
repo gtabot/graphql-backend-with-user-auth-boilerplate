@@ -54,7 +54,7 @@ describe("Register User", () => {
   });
 
   test("Storing registration data correctly", async () => {
-    user = (await User.find({ where: { email: mock.email } }))[0];
+    user = await User.findOne({ where: { email: mock.email } });
     expect(user.email).toEqual(mock.email);
     expect(user.username).toEqual(mock.username);
     expect(user.passwordHash).not.toEqual(mock.password);
@@ -103,7 +103,8 @@ describe("Confirm User", () => {
   let code: string;
 
   test("Confirm URL link works", async () => {
-    const user = (await User.find({ where: { email: mock.email } }))[0];
+    const user = await User.findOne({ where: { email: mock.email } });
+    if (!user) return expect(user).not.toBeNull();
     url = await createConfirmURL(
       `${process.env.LOCALHOST}:${process.env.GRAPHQL_PORT}`,
       user.id,
@@ -114,7 +115,8 @@ describe("Confirm User", () => {
   });
 
   test("Visiting confirm URL sets user.confirm to true", async () => {
-    const user = (await User.find({ where: { email: mock.email } }))[0];
+    const user = await User.findOne({ where: { email: mock.email } });
+    if (!user) return expect(user).not.toBeNull();
     expect(user.confirmed).toBe(true);
   });
 
@@ -266,31 +268,29 @@ describe("Forgot Password", () => {
       graphqlFuncs.changePassword(mock.username, mock2.password, key)
     );
     expect(response.changePassword).toEqual(responseSuccessful);
-    const user = (await User.find({ where: { username: mock.username } }))[0];
+    const user = await User.findOne({ where: { username: mock.username } });
+    if (!user) return expect(user).not.toBeNull();
     expect(bcrypt.compareSync(mock2.password, user.passwordHash)).toBe(true);
   });
 
   test("Invalid forgot password key does not change user's password", async () => {
-    let response;
-    let user;
-    response = await client.request(
+    const checkPassword = async () => {
+      const user = await User.findOne({ where: { username: mock.username } });
+      if (!user) return expect(user).not.toBeNull();
+      expect(response.changePassword).toEqual({
+        success: false,
+        errors: [responseErrors.changePassword.InvalidKey],
+      });
+      expect(bcrypt.compareSync(mock.password, user.passwordHash)).toBe(false);
+    }
+    let response = await client.request(
       graphqlFuncs.changePassword(mock.username, mock.password, key)
     );
-    user = (await User.find({ where: { username: mock.username } }))[0];
-    expect(response.changePassword).toEqual({
-      success: false,
-      errors: [responseErrors.changePassword.InvalidKey],
-    });
-    expect(bcrypt.compareSync(mock.password, user.passwordHash)).toBe(false);
+    await checkPassword();
     const invalidKey = "00000000";
     response = await client.request(
       graphqlFuncs.changePassword(mock.username, mock.password, invalidKey)
     );
-    user = (await User.find({ where: { username: mock.username } }))[0];
-    expect(response.changePassword).toEqual({
-      success: false,
-      errors: [responseErrors.changePassword.InvalidKey],
-    });
-    expect(bcrypt.compareSync(mock.password, user.passwordHash)).toBe(false);
+    await checkPassword();
   });
 });
