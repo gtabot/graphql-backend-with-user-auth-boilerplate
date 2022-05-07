@@ -6,6 +6,8 @@ import { User } from "./entity/User";
 
 let appDataSource;
 
+// TODO: configure PostgreSQL databases
+
 const prodOptions: DataSourceOptions = {
   type: "postgres",
   host: "localhost",
