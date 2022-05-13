@@ -35,6 +35,7 @@ declare namespace GQL {
     __typename: 'User';
     id: string;
     username: string;
+    email: string;
   }
 
   /**
