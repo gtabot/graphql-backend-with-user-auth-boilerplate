@@ -79,22 +79,6 @@ export const setTokens = (
   return { req, res };
 };
 
-export const requireLogin =
-  (resolver: Resolver, redis: Redis) =>
-  async (parent: any, args: any, context: any, info: any) => {
-    console.log("requireLogin");
-    const userId = context.req.session.userId;
-    console.log(userId);
-    if (!userId) return responseErrors.authorization.RequireLogin;
-    const sessionIds = await redis.lrange(userId, 0, -1);
-    console.log(sessionIds);
-    if (!sessionIds.includes(context.req.sessionID))
-      return responseErrors.authorization.RequireLogin;
-    const response = await resolver(parent, args, context, info);
-    console.log(response);
-    return response;
-  };
-
 export const responseSuccessful = GraphQLResponse(true);
 
 export const responseErrors = {
