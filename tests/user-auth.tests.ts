@@ -4,8 +4,11 @@ import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 
 import { User } from "../src/entity/User";
+import {
+  createConfirmURL,
+  createForgotPasswordURL,
+} from "../src/utils/email";
 import { Tokens } from "../src/types/resolver";
-import { createConfirmURL, createForgotPasswordURL } from "../src/utils/email";
 import { graphqlFuncs } from "../src/utils/gql";
 import { accessPrefix, redis } from "../src/utils/redis";
 import { errors } from "../src/utils/responses";
@@ -19,16 +22,15 @@ const responseSuccessful = { success: true, errors: [] };
 
 const mock = {
   userId: "",
-  email: "user@email.com",
-  username: "username1",
+  email: "testuser@mailinator.com",
+  username: "testuser",
   password: "pass1234",
   deviceId: "00000000-89ABCDEF-01234567-89ABCDEF",
 };
 
 const mock2 = {
-  userId: "",
-  email: "user2@email.com",
-  username: "username2",
+  email: "testuser2@mailinator.com",
+  username: "testuser2",
   password: "pass5678",
   deviceId: "00000000-00000000-01234567-89ABCDEF",
 };
@@ -46,9 +48,11 @@ describe("Register User", () => {
   let user: any;
 
   test("Successful registration", async () => {
-    const response = await client.request(
-      graphqlFuncs.registerUser(mock.email, mock.username, mock.password)
-    );
+    const response = await client.request(graphqlFuncs.registerUser, {
+      email: mock.email,
+      username: mock.username,
+      password: mock.password,
+    });
     expect(response.registerUser).toEqual(responseSuccessful);
   });
 
@@ -75,9 +79,11 @@ describe("Register User", () => {
   });
 
   test("Cannot create another user with same email", async () => {
-    const response = await client.request(
-      graphqlFuncs.registerUser(mock.email, mock2.username, mock.password)
-    );
+    const response = await client.request(graphqlFuncs.registerUser, {
+      email: mock.email,
+      username: mock2.username,
+      password: mock.password,
+    });
     expect(response.registerUser).toEqual({
       success: false,
       errors: [errors.registerUser.EmailExists],
@@ -85,9 +91,11 @@ describe("Register User", () => {
   });
 
   test("Cannot create another user with same username", async () => {
-    const response = await client.request(
-      graphqlFuncs.registerUser(mock2.email, mock.username, mock.password)
-    );
+    const response = await client.request(graphqlFuncs.registerUser, {
+      email: mock2.email,
+      username: mock.username,
+      password: mock.password,
+    });
     expect(response.registerUser).toEqual({
       success: false,
       errors: [errors.registerUser.UsernameExists],
@@ -139,9 +147,11 @@ describe("Login User", () => {
   let loggedInClient: GraphQLClient;
 
   test("Invalid username login will fail", async () => {
-    const response = await client.request(
-      graphqlFuncs.loginUser("wrongUser", mock.password, mock.deviceId)
-    );
+    const response = await client.request(graphqlFuncs.loginUser, {
+      usernameOrEmail: "wrongUser",
+      password: mock.password,
+      deviceId: mock.deviceId,
+    });
     expect(response.loginUser).toEqual({
       success: false,
       errors: [errors.loginUser.InvalidCredentials],
@@ -150,9 +160,11 @@ describe("Login User", () => {
   });
 
   test("Invalid password login will fail", async () => {
-    const response = await client.request(
-      graphqlFuncs.loginUser(mock.username, "wrongPassword", mock.deviceId)
-    );
+    const response = await client.request(graphqlFuncs.loginUser, {
+      usernameOrEmail: mock.username,
+      password: "wrongPassword",
+      deviceId: mock.deviceId,
+    });
     expect(response.loginUser).toEqual({
       success: false,
       errors: [errors.loginUser.InvalidCredentials],
@@ -161,12 +173,16 @@ describe("Login User", () => {
   });
 
   test("Unconfirmed user login will fail", async () => {
-    await client.request(
-      graphqlFuncs.registerUser(mock2.email, mock2.username, mock2.password)
-    );
-    const response = await client.request(
-      graphqlFuncs.loginUser(mock2.username, mock2.password, mock2.deviceId)
-    );
+    await client.request(graphqlFuncs.registerUser, {
+      email: mock2.email,
+      username: mock2.username,
+      password: mock2.password,
+    });
+    const response = await client.request(graphqlFuncs.loginUser, {
+      usernameOrEmail: mock2.username,
+      password: mock2.password,
+      deviceId: mock2.deviceId,
+    });
     expect(response.loginUser).toEqual({
       success: false,
       errors: [errors.loginUser.MustConfirmEmail],
@@ -176,9 +192,11 @@ describe("Login User", () => {
 
   test("Successful user login", async () => {
     const beforeDeviceIds = await getDeviceIds(mock.userId);
-    const response = await client.request(
-      graphqlFuncs.loginUser(mock.username, mock.password, mock.deviceId)
-    );
+    const response = await client.request(graphqlFuncs.loginUser, {
+      usernameOrEmail: mock.username,
+      password: mock.password,
+      deviceId: mock.deviceId,
+    });
     const afterDeviceIds = await getDeviceIds(mock.userId);
     expect(afterDeviceIds?.length).toBe(beforeDeviceIds?.length + 1 || 1);
     expect(response.loginUser.success).toBe(true);
@@ -214,9 +232,11 @@ describe("Login User", () => {
   test("Across multiple clients, can login and get the current user", async () => {
     const loginAndGetCurrentUser = async () => {
       let response;
-      response = await client.request(
-        graphqlFuncs.loginUser(mock.username, mock.password, mock.deviceId)
-      );
+      response = await client.request(graphqlFuncs.loginUser, {
+        usernameOrEmail: mock.username,
+        password: mock.password,
+        deviceId: mock.deviceId,
+      });
       expect(response.loginUser.success).toBe(true);
       const tokens: Tokens = JSON.parse(response.loginUser.data);
       const loggedIn = new GraphQLClient(graphqlHost, {
@@ -248,7 +268,8 @@ describe("Forgot Password", () => {
 
   test("Successful send of forgotten password email", async () => {
     const response = await client.request(
-      graphqlFuncs.sendForgotPasswordEmail(mock2.email)
+      graphqlFuncs.sendForgotPasswordEmail,
+      { email: mock2.email }
     );
     expect(response.sendForgotPasswordEmail).toEqual(responseSuccessful);
   });
@@ -261,9 +282,11 @@ describe("Forgot Password", () => {
     );
     const parts = url.split("/");
     key = parts[parts.length - 1];
-    const response = await client.request(
-      graphqlFuncs.changePassword(mock.username, mock2.password, key)
-    );
+    const response = await client.request(graphqlFuncs.changePassword, {
+      username: mock.username,
+      newPassword: mock2.password,
+      key,
+    });
     expect(response.changePassword).toEqual(responseSuccessful);
     const user = await User.findOne({ where: { username: mock.username } });
     if (!user) return expect(user).not.toBeNull();
@@ -279,15 +302,19 @@ describe("Forgot Password", () => {
         errors: [errors.changePassword.InvalidKey],
       });
       expect(bcrypt.compareSync(mock.password, user.passwordHash)).toBe(false);
-    }
-    let response = await client.request(
-      graphqlFuncs.changePassword(mock.username, mock.password, key)
-    );
+    };
+    let response = await client.request(graphqlFuncs.changePassword, {
+      username: mock.username,
+      newPassword: mock.password,
+      key,
+    });
     await checkPassword();
     const invalidKey = "00000000";
-    response = await client.request(
-      graphqlFuncs.changePassword(mock.username, mock.password, invalidKey)
-    );
+    response = await client.request(graphqlFuncs.changePassword, {
+      username: mock.username,
+      newPassword: mock.password,
+      key: invalidKey,
+    });
     await checkPassword();
   });
 });
