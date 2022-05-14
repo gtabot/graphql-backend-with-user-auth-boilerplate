@@ -1,6 +1,6 @@
-import { GraphQLResponse } from "../types/resolver";
+import { ProjectResponse } from "../types/resolver";
 
-export const responseSuccessful = GraphQLResponse(true);
+export const responseSuccessful = ProjectResponse(true);
 
 export const errors = {
   authorization: {

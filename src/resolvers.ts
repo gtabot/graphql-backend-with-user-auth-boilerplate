@@ -1,7 +1,7 @@
 import * as bcrypt from "bcryptjs";
 
 import { User } from "./entity/User";
-import { GraphQLResponse, ResolverMap } from "./types/resolver";
+import { ProjectResponse, ResolverMap } from "./types/resolver";
 import {
   createConfirmURL,
   createForgotPasswordURL,
@@ -30,12 +30,12 @@ export const resolvers: ResolverMap = {
       _,
       args: GQL.IChangePasswordOnMutationArguments,
       { redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       const { username, newPassword, key } = args;
       const redisKey = `${passwordPrefix}${key}`;
       const email = await redis.get(redisKey);
       if (!email)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.changePassword.InvalidKey,
         ]);
       const newPasswordHash = await bcrypt.hash(newPassword, 16);
@@ -48,22 +48,22 @@ export const resolvers: ResolverMap = {
       _,
       args: GQL.ILoginUserOnMutationArguments,
       { req, res, redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       const { usernameOrEmail, password, deviceId } = args;
       let user;
       user = await User.findOne({ where: { username: usernameOrEmail } });
       if (!user)
         user = await User.findOne({ where: { email: usernameOrEmail } });
       if (!user)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.loginUser.InvalidCredentials,
         ]);
       if (!user.confirmed)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.loginUser.MustConfirmEmail,
         ]);
       if (!bcrypt.compareSync(password, user.passwordHash)) {
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.loginUser.InvalidCredentials,
         ]);
       } else {
@@ -71,7 +71,7 @@ export const resolvers: ResolverMap = {
         setTokens(req, res, accessToken, refreshToken);
         await redis.lpush(`${accessPrefix}${user.id}`, deviceId);
         const data = { accessToken, refreshToken };
-        return GraphQLResponse(true, [], JSON.stringify(data));
+        return ProjectResponse(true, [], JSON.stringify(data));
       }
     },
 
@@ -79,7 +79,7 @@ export const resolvers: ResolverMap = {
       _,
       __,
       { req, res, redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       if (req.access?.userId)
         await redis.del(`${accessPrefix}${req.access.userId}`);
       clearTokens(req, res);
@@ -90,7 +90,7 @@ export const resolvers: ResolverMap = {
       _,
       __,
       { req, res, redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       if (req.access?.userId && req.access?.deviceId)
         await redis.lrem(
           `${accessPrefix}${req.access.userId}`,
@@ -105,16 +105,16 @@ export const resolvers: ResolverMap = {
       _,
       args: GQL.IRegisterUserOnMutationArguments,
       { redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       const { email, username, password } = args;
       const usernameExists = await User.findOne({ where: { username } });
       if (usernameExists)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.registerUser.UsernameExists,
         ]);
       const emailExists = await User.findOne({ where: { email } });
       if (emailExists)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.registerUser.EmailExists,
         ]);
       const passwordHash = await bcrypt.hash(password, 16);
@@ -127,18 +127,18 @@ export const resolvers: ResolverMap = {
       );
       if (process.env.NODE_ENV === "production")
         return sendConfirmEmail(user, confirmURL);
-      else return GraphQLResponse(true);
+      else return ProjectResponse(true);
     },
 
     sendForgotPasswordEmail: async (
       _,
       args: GQL.ISendForgotPasswordEmailOnMutationArguments,
       { redis }
-    ): Promise<GQL.IGraphQLResponse> => {
+    ): Promise<GQL.IProjectResponse> => {
       const { email } = args;
       const user = await User.findOne({ where: { email } });
       if (!user)
-        return GraphQLResponse(false, [
+        return ProjectResponse(false, [
           errors.sendForgotPasswordEmail.EmailDoesNotExist,
         ]);
       const forgotPasswordURL = await createForgotPasswordURL(
@@ -148,7 +148,7 @@ export const resolvers: ResolverMap = {
       );
       if (process.env.NODE_ENV === "production")
         return sendForgotPasswordEmail(user, forgotPasswordURL);
-      else return GraphQLResponse(true);
+      else return ProjectResponse(true);
     },
   },
 };

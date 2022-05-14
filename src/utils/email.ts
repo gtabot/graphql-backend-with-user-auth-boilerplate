@@ -2,7 +2,7 @@ import Redis from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../entity/User";
-import { GraphQLResponse } from "../types/resolver";
+import { ProjectResponse } from "../types/resolver";
 import { confirmPrefix, passwordPrefix } from "./redis";
 
 export const createConfirmURL = async (
@@ -28,17 +28,17 @@ export const createForgotPasswordURL = async (
 export const sendConfirmEmail = async (
   user: User,
   url: string
-): Promise<GQL.IGraphQLResponse> => {
+): Promise<GQL.IProjectResponse> => {
   // TODO: send confirm email
   console.log(`TODO: Send confirm email to ${user.email} with link ${url}`)
-  return GraphQLResponse(true);
+  return ProjectResponse(true);
 };
 
 export const sendForgotPasswordEmail = async (
   user: User,
   url: string
-): Promise<GQL.IGraphQLResponse> => {
+): Promise<GQL.IProjectResponse> => {
   // TODO: send forgot password email
   console.log(`TODO: Send forgot password email to ${user.email} with link ${url}`)
-  return GraphQLResponse(true);
+  return ProjectResponse(true);
 };

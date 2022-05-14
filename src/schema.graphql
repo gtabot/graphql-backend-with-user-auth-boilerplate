@@ -7,24 +7,24 @@ type Query {
 """ Mutations """
 
 type Mutation {
-  changePassword(username: String!, newPassword: String!, key: String!): GraphQLResponse
-  loginUser(usernameOrEmail: String!, password: String!, deviceId: String!): GraphQLResponse
-  logoutAll: GraphQLResponse
-  logoutUser: GraphQLResponse
-  registerUser(email: String!, username: String!, password: String!): GraphQLResponse
-  sendForgotPasswordEmail(email: String!): GraphQLResponse
+  changePassword(username: String!, newPassword: String!, key: String!): ProjectResponse
+  loginUser(usernameOrEmail: String!, password: String!, deviceId: String!): ProjectResponse
+  logoutAll: ProjectResponse
+  logoutUser: ProjectResponse
+  registerUser(email: String!, username: String!, password: String!): ProjectResponse
+  sendForgotPasswordEmail(email: String!): ProjectResponse
 }
 
 """ Responses """
 
-type ResponseError {
+type ProjectError {
   type: String!
   message: String!
 }
 
-type GraphQLResponse {
+type ProjectResponse {
   success: Boolean!
-  errors: [ResponseError!]
+  errors: [ProjectError!]
   data: String
 }
 

@@ -16,17 +16,17 @@ export type Tokens = {
   refreshToken: string;
 };
 
-export function GraphQLResponse(
+export function ProjectResponse(
   success: boolean,
   errors: { type: string; message: string }[] = [],
   data: string = ""
-): GQL.IGraphQLResponse {
+): GQL.IProjectResponse {
   return {
-    __typename: "GraphQLResponse",
+    __typename: "ProjectResponse",
     success,
     errors: errors.map((error) => {
       return {
-        __typename: "ResponseError",
+        __typename: "ProjectError",
         ...error,
       };
     }),

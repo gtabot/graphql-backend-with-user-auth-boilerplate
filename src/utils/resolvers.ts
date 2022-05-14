@@ -4,18 +4,25 @@ import * as jwt from "jsonwebtoken";
 import { User } from "../entity/User";
 import {
   AccessTokenData,
-  GraphQLResponse,
+  ProjectResponse,
   RefreshTokenData,
   Tokens,
 } from "../types/resolver";
 import { errors } from "./responses";
 
+/* How to use checkLoggedIn:
+
+const loginCheck = await checkLoggedIn(req);
+if (!loginCheck.loggedIn) return loginCheck.result as GQL.IProjectResponse;
+const user = loginCheck.result as User;
+
+*/
 export const checkLoggedIn = async (req: Express.Request) => {
   if (process.env.NODE_ENV === "production") {
     if (!req.access || !req.access.userId)
       return {
         loggedIn: false,
-        result: GraphQLResponse(false, [
+        result: ProjectResponse(false, [
           errors.requireLogin.LoginRequired,
         ]),
       };
@@ -23,7 +30,7 @@ export const checkLoggedIn = async (req: Express.Request) => {
     if (!user)
       return {
         loggedIn: false,
-        result: GraphQLResponse(false, [
+        result: ProjectResponse(false, [
           errors.requireLogin.MissingUser,
         ]),
       };

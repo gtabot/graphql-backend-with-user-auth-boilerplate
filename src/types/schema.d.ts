@@ -43,12 +43,12 @@ declare namespace GQL {
    */
   interface IMutation {
     __typename: 'Mutation';
-    changePassword: IGraphQLResponse | null;
-    loginUser: IGraphQLResponse | null;
-    logoutAll: IGraphQLResponse | null;
-    logoutUser: IGraphQLResponse | null;
-    registerUser: IGraphQLResponse | null;
-    sendForgotPasswordEmail: IGraphQLResponse | null;
+    changePassword: IProjectResponse | null;
+    loginUser: IProjectResponse | null;
+    logoutAll: IProjectResponse | null;
+    logoutUser: IProjectResponse | null;
+    registerUser: IProjectResponse | null;
+    sendForgotPasswordEmail: IProjectResponse | null;
   }
 
   interface IChangePasswordOnMutationArguments {
@@ -73,18 +73,18 @@ declare namespace GQL {
     email: string;
   }
 
-  interface IGraphQLResponse {
-    __typename: 'GraphQLResponse';
+  interface IProjectResponse {
+    __typename: 'ProjectResponse';
     success: boolean;
-    errors: Array<IResponseError> | null;
+    errors: Array<IProjectError> | null;
     data: string | null;
   }
 
   /**
    *  Responses
    */
-  interface IResponseError {
-    __typename: 'ResponseError';
+  interface IProjectError {
+    __typename: 'ProjectError';
     type: string;
     message: string;
   }
