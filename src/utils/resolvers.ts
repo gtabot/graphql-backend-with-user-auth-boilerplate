@@ -19,12 +19,12 @@ const user = loginCheck.result as User;
 export const checkLoggedIn = async (req: Express.Request) => {
   if (req.access?.userId) {
     const user = await User.findOne({ where: { id: req.access.userId } });
-    if (!user)
+    if (user) return { loggedIn: true, result: user };
+    else
       return {
         loggedIn: false,
         result: ProjectResponse(false, [errors.requireLogin.MissingUser]),
       };
-    else return { loggedIn: true, result: user };
   } else if (process.env.NODE_ENV === "production") {
     return {
       loggedIn: false,
