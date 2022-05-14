@@ -1,5 +1,4 @@
 import * as express from "express";
-import Redis from "ioredis";
 import * as jwt from "jsonwebtoken";
 
 import { User } from "../entity/User";
@@ -7,9 +6,37 @@ import {
   AccessTokenData,
   GraphQLResponse,
   RefreshTokenData,
-  Resolver,
   Tokens,
 } from "../types/resolver";
+
+export const checkLoggedIn = async (req: Express.Request) => {
+  if (process.env.NODE_ENV === "production") {
+    if (!req.access || !req.access.userId)
+      return {
+        loggedIn: false,
+        result: GraphQLResponse(false, [
+          responseErrors.requireLogin.LoginRequired,
+        ]),
+      };
+    const user = await User.findOne({ where: { id: req.access.userId } });
+    if (!user)
+      return {
+        loggedIn: false,
+        result: GraphQLResponse(false, [
+          responseErrors.requireLogin.MissingUser,
+        ]),
+      };
+    return { loggedIn: true, result: user };
+  } else {
+    const user = (await User.find())[0];
+    return { loggedIn: true, result: user };
+  }
+};
+
+export const clearTokens = (req: express.Request, res: express.Response) => {
+  req.access = undefined;
+  return { req, res };
+};
 
 export const createTokens = async (user: User, deviceId: string) => {
   const accessData: AccessTokenData = {
@@ -37,10 +64,6 @@ export const createTokens = async (user: User, deviceId: string) => {
   return Promise.all([accessToken, refreshToken]);
 };
 
-export const clearTokens = (req: express.Request, res: express.Response) => {
-  req.access = undefined;
-  return { req, res };
-};
 
 export const refreshTokens = async (
   refreshToken: string
@@ -124,6 +147,16 @@ export const responseErrors = {
     UsernameExists: {
       type: "username",
       message: "User with username already exists",
+    },
+  },
+  requireLogin: {
+    LoginRequired: {
+      type: "login",
+      message: "Must be logged in to access",
+    },
+    MissingUser: {
+      type: "user",
+      message: "Can not find user",
     },
   },
   sendForgotPasswordEmail: {
