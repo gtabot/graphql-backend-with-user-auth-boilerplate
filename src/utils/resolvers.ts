@@ -17,7 +17,7 @@ if (!loginCheck.loggedIn) return loginCheck.result as GQL.IProjectResponse;
 const user = loginCheck.result as User;
 */
 export const checkLoggedIn = async (req: Express.Request) => {
-  if (req.access && req.access.userId) {
+  if (req.access?.userId) {
     const user = await User.findOne({ where: { id: req.access.userId } });
     if (!user)
       return {
