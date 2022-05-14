@@ -8,6 +8,7 @@ import {
   RefreshTokenData,
   Tokens,
 } from "../types/resolver";
+import { errors } from "./responses";
 
 export const checkLoggedIn = async (req: Express.Request) => {
   if (process.env.NODE_ENV === "production") {
@@ -15,7 +16,7 @@ export const checkLoggedIn = async (req: Express.Request) => {
       return {
         loggedIn: false,
         result: GraphQLResponse(false, [
-          responseErrors.requireLogin.LoginRequired,
+          errors.requireLogin.LoginRequired,
         ]),
       };
     const user = await User.findOne({ where: { id: req.access.userId } });
@@ -23,7 +24,7 @@ export const checkLoggedIn = async (req: Express.Request) => {
       return {
         loggedIn: false,
         result: GraphQLResponse(false, [
-          responseErrors.requireLogin.MissingUser,
+          errors.requireLogin.MissingUser,
         ]),
       };
     return { loggedIn: true, result: user };
@@ -100,69 +101,4 @@ export const setTokens = (
   ) as AccessTokenData;
   req.access = access;
   return { req, res };
-};
-
-export const responseSuccessful = GraphQLResponse(true);
-
-export const responseErrors = {
-  authorization: {
-    RequireLogin: {
-      type: "login",
-      message: "Logging in is required to view this page",
-    },
-  },
-  changePassword: {
-    InvalidKey: {
-      type: "key",
-      message: "Invalid key to change password",
-    },
-  },
-  graphQL: {
-    MissingInput: {
-      type: "input",
-      message: "Missing input values",
-    },
-  },
-  loginUser: {
-    InvalidCredentials: {
-      type: "login",
-      message: "Invalid login credentials",
-    },
-    MustConfirmEmail: {
-      type: "login",
-      message: "Must confirm email before logging in",
-    },
-  },
-  logout: {
-    UserNotLoggedIn: {
-      type: "logout",
-      message: "User not logged in",
-    },
-  },
-  registerUser: {
-    EmailExists: {
-      type: "email",
-      message: "User with email address already exists",
-    },
-    UsernameExists: {
-      type: "username",
-      message: "User with username already exists",
-    },
-  },
-  requireLogin: {
-    LoginRequired: {
-      type: "login",
-      message: "Must be logged in to access",
-    },
-    MissingUser: {
-      type: "user",
-      message: "Can not find user",
-    },
-  },
-  sendForgotPasswordEmail: {
-    EmailDoesNotExist: {
-      type: "email",
-      message: "User with email address does not exist",
-    },
-  },
 };

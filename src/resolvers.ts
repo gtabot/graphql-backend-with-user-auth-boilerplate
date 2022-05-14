@@ -12,10 +12,9 @@ import { accessPrefix, passwordPrefix } from "./utils/redis";
 import {
   clearTokens,
   createTokens,
-  responseErrors,
-  responseSuccessful,
   setTokens,
 } from "./utils/resolvers";
+import { errors, responseSuccessful } from "./utils/responses";
 
 export const resolvers: ResolverMap = {
   Query: {
@@ -37,7 +36,7 @@ export const resolvers: ResolverMap = {
       const email = await redis.get(redisKey);
       if (!email)
         return GraphQLResponse(false, [
-          responseErrors.changePassword.InvalidKey,
+          errors.changePassword.InvalidKey,
         ]);
       const newPasswordHash = await bcrypt.hash(newPassword, 16);
       await User.update({ email, username }, { passwordHash: newPasswordHash });
@@ -57,15 +56,15 @@ export const resolvers: ResolverMap = {
         user = await User.findOne({ where: { email: usernameOrEmail } });
       if (!user)
         return GraphQLResponse(false, [
-          responseErrors.loginUser.InvalidCredentials,
+          errors.loginUser.InvalidCredentials,
         ]);
       if (!user.confirmed)
         return GraphQLResponse(false, [
-          responseErrors.loginUser.MustConfirmEmail,
+          errors.loginUser.MustConfirmEmail,
         ]);
       if (!bcrypt.compareSync(password, user.passwordHash)) {
         return GraphQLResponse(false, [
-          responseErrors.loginUser.InvalidCredentials,
+          errors.loginUser.InvalidCredentials,
         ]);
       } else {
         const [accessToken, refreshToken] = await createTokens(user, deviceId);
@@ -111,12 +110,12 @@ export const resolvers: ResolverMap = {
       const usernameExists = await User.findOne({ where: { username } });
       if (usernameExists)
         return GraphQLResponse(false, [
-          responseErrors.registerUser.UsernameExists,
+          errors.registerUser.UsernameExists,
         ]);
       const emailExists = await User.findOne({ where: { email } });
       if (emailExists)
         return GraphQLResponse(false, [
-          responseErrors.registerUser.EmailExists,
+          errors.registerUser.EmailExists,
         ]);
       const passwordHash = await bcrypt.hash(password, 16);
       const user = await User.create({ email, username, passwordHash });
@@ -140,7 +139,7 @@ export const resolvers: ResolverMap = {
       const user = await User.findOne({ where: { email } });
       if (!user)
         return GraphQLResponse(false, [
-          responseErrors.sendForgotPasswordEmail.EmailDoesNotExist,
+          errors.sendForgotPasswordEmail.EmailDoesNotExist,
         ]);
       const forgotPasswordURL = await createForgotPasswordURL(
         `${process.env.FRONT_END_URL}`,

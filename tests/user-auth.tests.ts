@@ -8,7 +8,7 @@ import { Tokens } from "../src/types/resolver";
 import { createConfirmURL, createForgotPasswordURL } from "../src/utils/email";
 import { graphqlFuncs } from "../src/utils/gql";
 import { accessPrefix, redis } from "../src/utils/redis";
-import { responseErrors } from "../src/utils/resolvers";
+import { errors } from "../src/utils/responses";
 import { afterAllTests, beforeAllTests } from "./test-globals";
 
 const graphqlHost = `${process.env.LOCALHOST}:${process.env.GRAPHQL_PORT}/graphql`;
@@ -82,7 +82,7 @@ describe("Register User", () => {
     );
     expect(response.registerUser).toEqual({
       success: false,
-      errors: [responseErrors.registerUser.EmailExists],
+      errors: [errors.registerUser.EmailExists],
     });
   });
 
@@ -93,7 +93,7 @@ describe("Register User", () => {
     );
     expect(response.registerUser).toEqual({
       success: false,
-      errors: [responseErrors.registerUser.UsernameExists],
+      errors: [errors.registerUser.UsernameExists],
     });
   });
 });
@@ -147,7 +147,7 @@ describe("Login User", () => {
     );
     expect(response.loginUser).toEqual({
       success: false,
-      errors: [responseErrors.loginUser.InvalidCredentials],
+      errors: [errors.loginUser.InvalidCredentials],
       data: "",
     });
   });
@@ -158,7 +158,7 @@ describe("Login User", () => {
     );
     expect(response.loginUser).toEqual({
       success: false,
-      errors: [responseErrors.loginUser.InvalidCredentials],
+      errors: [errors.loginUser.InvalidCredentials],
       data: "",
     });
   });
@@ -172,7 +172,7 @@ describe("Login User", () => {
     );
     expect(response.loginUser).toEqual({
       success: false,
-      errors: [responseErrors.loginUser.MustConfirmEmail],
+      errors: [errors.loginUser.MustConfirmEmail],
       data: "",
     });
   });
@@ -279,7 +279,7 @@ describe("Forgot Password", () => {
       if (!user) return expect(user).not.toBeNull();
       expect(response.changePassword).toEqual({
         success: false,
-        errors: [responseErrors.changePassword.InvalidKey],
+        errors: [errors.changePassword.InvalidKey],
       });
       expect(bcrypt.compareSync(mock.password, user.passwordHash)).toBe(false);
     }
