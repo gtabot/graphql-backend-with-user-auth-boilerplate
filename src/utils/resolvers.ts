@@ -15,28 +15,23 @@ import { errors } from "./responses";
 const loginCheck = await checkLoggedIn(req);
 if (!loginCheck.loggedIn) return loginCheck.result as GQL.IProjectResponse;
 const user = loginCheck.result as User;
-
 */
 export const checkLoggedIn = async (req: Express.Request) => {
-  if (process.env.NODE_ENV === "production") {
-    if (!req.access || !req.access.userId)
-      return {
-        loggedIn: false,
-        result: ProjectResponse(false, [
-          errors.requireLogin.LoginRequired,
-        ]),
-      };
+  if (req.access && req.access.userId) {
     const user = await User.findOne({ where: { id: req.access.userId } });
     if (!user)
       return {
         loggedIn: false,
-        result: ProjectResponse(false, [
-          errors.requireLogin.MissingUser,
-        ]),
+        result: ProjectResponse(false, [errors.requireLogin.MissingUser]),
       };
-    return { loggedIn: true, result: user };
+    else return { loggedIn: true, result: user };
+  } else if (process.env.NODE_ENV === "production") {
+    return {
+      loggedIn: false,
+      result: ProjectResponse(false, [errors.requireLogin.LoginRequired]),
+    };
   } else {
-    const user = (await User.find())[0];
+    const user = await User.findOne({});
     return { loggedIn: true, result: user };
   }
 };
