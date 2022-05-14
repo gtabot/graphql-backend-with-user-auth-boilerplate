@@ -3,7 +3,6 @@ import { loadSchemaSync } from "@graphql-tools/load";
 import { addResolversToSchema } from "@graphql-tools/schema";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
-import * as cors from "cors";
 import "dotenv/config";
 import * as express from "express";
 import jwt from "jsonwebtoken";
@@ -16,8 +15,6 @@ import { resolvers } from "./resolvers";
 import { AccessTokenData } from "./types/resolver";
 import { confirmPrefix, redis } from "./utils/redis";
 import { refreshTokens, setTokens } from "./utils/resolvers";
-
-const isProduction = process.env.NODE_ENV === "production";
 
 AppDataSource.initialize();
 
@@ -61,13 +58,6 @@ const setTokensMiddleware = async (
 const app = express();
 
 app.set("trust proxy", process.env.NODE_ENV !== "production");
-
-app.use(
-  cors({
-    credentials: true,
-    origin: isProduction ? [`${process.env.PROD_URL}`] : ["*"],
-  })
-);
 
 app.use(setTokensMiddleware);
 
