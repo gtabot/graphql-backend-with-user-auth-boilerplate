@@ -143,6 +143,9 @@ describe("Confirm User", () => {
 describe("Login User", () => {
   let loggedInClient: GraphQLClient;
 
+  const getDeviceIds = (userId: string) =>
+    redis.lrange(redisAccessKey(userId), 0, -1);
+
   test("Invalid username login will fail", async () => {
     const response = await client.request(graphqlFuncs.loginUser, {
       usernameOrEmail: "wrongUser",
@@ -188,8 +191,6 @@ describe("Login User", () => {
   });
 
   test("Successful user login", async () => {
-    const getDeviceIds = (userId: string) =>
-      redis.lrange(redisAccessKey(userId), 0, -1);
     const beforeDeviceIds = await getDeviceIds(mock.userId);
     const response = await client.request(graphqlFuncs.loginUser, {
       usernameOrEmail: mock.username,
