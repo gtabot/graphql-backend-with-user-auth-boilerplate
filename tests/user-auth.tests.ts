@@ -9,7 +9,7 @@ import { createConfirmURL, createForgotPasswordURL } from "../src/utils/email";
 import { graphqlFuncs } from "../src/utils/gql";
 import { accessPrefix, redis } from "../src/utils/redis";
 import { errors } from "../src/utils/responses";
-import { afterAllTests, beforeAllTests } from "./test-globals";
+import { afterEachTestSuite, beforeEachTestSuite } from "./test-globals";
 
 const graphqlHost = `${process.env.LOCALHOST}:${process.env.GRAPHQL_PORT}/graphql`;
 
@@ -38,9 +38,9 @@ const redisAccessKey = (userId: string) => `${accessPrefix}${userId}`;
 const getDeviceIds = (userId: string) =>
   redis.lrange(redisAccessKey(userId), 0, -1);
 
-beforeAll(beforeAllTests);
+beforeAll(beforeEachTestSuite);
 
-afterAll(afterAllTests);
+afterAll(afterEachTestSuite);
 
 describe("Register User", () => {
   let user: any;
