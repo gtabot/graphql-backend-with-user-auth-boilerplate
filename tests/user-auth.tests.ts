@@ -1,6 +1,6 @@
 import * as bcrypt from "bcryptjs";
 import "dotenv/config";
-import { GraphQLClient, request } from "graphql-request";
+import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 
 import { User } from "../src/entity/User";
@@ -46,8 +46,7 @@ describe("Register User", () => {
   let user: any;
 
   test("Successful registration", async () => {
-    const response = await request(
-      graphqlHost,
+    const response = await client.request(
       graphqlFuncs.registerUser(mock.email, mock.username, mock.password)
     );
     expect(response.registerUser).toEqual(responseSuccessful);
@@ -76,8 +75,7 @@ describe("Register User", () => {
   });
 
   test("Cannot create another user with same email", async () => {
-    const response = await request(
-      graphqlHost,
+    const response = await client.request(
       graphqlFuncs.registerUser(mock.email, mock2.username, mock.password)
     );
     expect(response.registerUser).toEqual({
@@ -87,8 +85,7 @@ describe("Register User", () => {
   });
 
   test("Cannot create another user with same username", async () => {
-    const response = await request(
-      graphqlHost,
+    const response = await client.request(
       graphqlFuncs.registerUser(mock2.email, mock.username, mock.password)
     );
     expect(response.registerUser).toEqual({
