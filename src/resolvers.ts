@@ -1,13 +1,13 @@
 import * as bcrypt from "bcryptjs";
 
-import { User } from "./entity/User";
+import User from "./entity/User";
 import { ProjectResponse, ResolverMap } from "./types/resolver";
 import {
   createConfirmURL,
   createForgotPasswordURL,
   sendConfirmEmail,
   sendForgotPasswordEmail,
-} from "./utils/email";
+} from "./functions/email";
 import { accessPrefix, passwordPrefix } from "./utils/redis";
 import {
   clearTokens,

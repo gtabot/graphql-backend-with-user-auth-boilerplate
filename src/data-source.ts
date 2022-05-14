@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import { DataSource, DataSourceOptions } from "typeorm";
 
-import { User } from "./entity/User";
+import User from "./entity/User";
 
 let appDataSource;
 

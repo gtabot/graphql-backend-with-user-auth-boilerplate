@@ -3,11 +3,11 @@ import "dotenv/config";
 import { GraphQLClient } from "graphql-request";
 import fetch from "node-fetch";
 
-import { User } from "../src/entity/User";
+import User from "../src/entity/User";
 import {
   createConfirmURL,
   createForgotPasswordURL,
-} from "../src/utils/email";
+} from "../src/functions/email";
 import { Tokens } from "../src/types/resolver";
 import { graphqlFuncs } from "../src/utils/gql";
 import { accessPrefix, redis } from "../src/utils/redis";

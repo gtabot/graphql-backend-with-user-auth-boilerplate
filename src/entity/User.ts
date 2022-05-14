@@ -8,7 +8,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 @Entity("users")
-export class User extends BaseEntity {
+export default class User extends BaseEntity {
   @BeforeInsert()
   addId() {
     this.id = uuidv4().split("-")[0];

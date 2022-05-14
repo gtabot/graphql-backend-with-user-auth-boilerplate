@@ -10,7 +10,7 @@ import { join } from "path";
 import "reflect-metadata";
 
 import { AppDataSource } from "./data-source";
-import { User } from "./entity/User";
+import User from "./entity/User";
 import { resolvers } from "./resolvers";
 import { AccessTokenData } from "./types/resolver";
 import { confirmPrefix, redis } from "./utils/redis";
