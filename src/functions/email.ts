@@ -1,9 +1,9 @@
 import Redis from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 
-import { User } from "../entity/User";
+import User from "../entity/User";
 import { ProjectResponse } from "../types/resolver";
-import { confirmPrefix, passwordPrefix } from "./redis";
+import { confirmPrefix, passwordPrefix } from "../utils/redis";
 
 export const createConfirmURL = async (
   url: string,
